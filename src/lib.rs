@@ -261,6 +261,14 @@ macro_rules! let_extract {
         let_extract!($($p)::+ { $($its)* } , $t, match { _ => $els })
     };
 
+    // panic! if no else action supplied
+    ($($p:ident)::+ ( $($its:tt)* ) , $t:expr) => {
+        let_extract!($($p)::+ ( $($its)* ) , $t, match { _ => panic!("Unexpected variant in let_extract") })
+    };
+    ($($p:ident)::+ { $($its:tt)* } , $t:expr, $els:expr) => {
+        let_extract!($($p)::+ { $($its)* } , $t, match { _ => panic!("Unexpected variant in let_extract") })
+    };
+
 }
 
 #[cfg(test)]
