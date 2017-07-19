@@ -247,7 +247,8 @@ macro_rules! let_extract {
             $($body)*
         };
     };
-    ($($p:ident)::+ { $($k:ident : $v:ident),* } , $t:expr, match { $($body:tt)* }) => {
+    // $(,)* allows a trailing comma
+    ($($p:ident)::+ { $($k:ident : $v:ident),* $(,)* } , $t:expr, match { $($body:tt)* }) => {
         let ($($v,)*) = match $t {
             $($p)::+ {$($k),*} => ($($k,)*),
             $($body)*
