@@ -173,6 +173,23 @@ macro_rules! extract {
 /// # }
 /// ```
 ///
+/// The last parameter can be omitted. If so, a match error will cause a panic
+///
+/// ```rust
+/// # #[macro_use] extern crate enum_extract;
+/// # enum Foo {
+/// #     A(i32),
+/// #     B(i32, i32),
+/// #     C { x: i32, y: i32 },
+/// #     D { z: i32 },
+/// # }
+/// # fn main() {
+/// let a = Foo::A(10);
+/// let_extract!(Foo::A(x), a);
+/// assert_eq!(x, 10);
+/// # }
+/// ```
+///
 /// Alternatively, it can provide default values for the variable bindings, from
 /// left to right.
 ///
