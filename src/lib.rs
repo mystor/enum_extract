@@ -78,7 +78,7 @@
 #[macro_export]
 macro_rules! extract {
     // Internal Variants
-    (@ANON_TUPLE [], [$($ids:ident)*], $($p:ident)::+, $t:expr) => {
+    (@ANON_TUPLE [$(,)*], [$($ids:ident)*], $($p:ident)::+, $t:expr) => {
         match $t {
             $($p)::+ ( $($ids),* ) => Some(( $($ids),* )),
             _ => None,
@@ -100,7 +100,7 @@ macro_rules! extract {
     };
 
     // Struct Variants
-    ($($p:ident)::+ { $($i:ident),* } , $t:expr) => {
+    ($($p:ident)::+ { $($i:ident),* $(,)* } , $t:expr) => {
         match $t {
             $($p)::+ {$($i),*} => Some(($($i),*)),
             _ => None
@@ -235,19 +235,18 @@ macro_rules! extract {
 /// ```
 #[macro_export]
 macro_rules! let_extract {
-    ($($p:ident)::+ ( $($i:ident),* ) , $t:expr, match { $($body:tt)* }) => {
+    ($($p:ident)::+ ( $($i:ident),* $(,)* ) , $t:expr, match { $($body:tt)* }) => {
         let ($($i,)*) = match $t {
             $($p)::+ ($($i),*) => ($($i,)*),
             $($body)*
         };
     };
-    ($($p:ident)::+ { $($i:ident),* } , $t:expr, match { $($body:tt)* }) => {
+    ($($p:ident)::+ { $($i:ident),* $(,)* } , $t:expr, match { $($body:tt)* }) => {
         let ($($i,)*) = match $t {
             $($p)::+ {$($i),*} => ($($i,)*),
             $($body)*
         };
     };
-    // $(,)* allows a trailing comma
     ($($p:ident)::+ { $($k:ident : $v:ident),* $(,)* } , $t:expr, match { $($body:tt)* }) => {
         let ($($v,)*) = match $t {
             $($p)::+ {$($k),*} => ($($k,)*),
@@ -283,7 +282,14 @@ mod test {
         let x = extract!(Foo::A(_, _), f);
         assert_eq!(x, Some((10, 20)));
 
+        let x = extract!(Foo::A(_, _,), f);
+        assert_eq!(x, Some((10, 20)));
+
         let_extract!(Foo::A(x, y), f, panic!());
+        assert_eq!(x, 10);
+        assert_eq!(y, 20);
+
+        let_extract!(Foo::A(x, y,), f, panic!());
         assert_eq!(x, 10);
         assert_eq!(y, 20);
 
@@ -299,18 +305,19 @@ mod test {
         let x = extract!(Bar::C{x, y}, f);
         assert_eq!(x, Some((10, 20)));
 
+        let x = extract!(Bar::C{x, y,}, f);
+        assert_eq!(x, Some((10, 20)));
+
         let_extract!(Bar::C{x, y}, f, panic!());
         assert_eq!(x, 10);
         assert_eq!(y, 20);
 
-        // bigger structs will be split so by rustfmt, which will add the trailing comma
-        // test if it works
         let_extract!(
             Bar::C{
-                x: a, 
+                x: a,
                 y: b,
-            }, 
-            f, 
+            },
+            f,
             panic!()
         );
         assert_eq!(a, 10);
