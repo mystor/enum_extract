@@ -247,7 +247,8 @@ macro_rules! let_extract {
             $($body)*
         };
     };
-    ($($p:ident)::+ { $($k:ident : $v:ident),* } , $t:expr, match { $($body:tt)* }) => {
+    // $(,)* allows a trailing comma
+    ($($p:ident)::+ { $($k:ident : $v:ident),* $(,)* } , $t:expr, match { $($body:tt)* }) => {
         let ($($v,)*) = match $t {
             $($p)::+ {$($k),*} => ($($k,)*),
             $($body)*
@@ -302,7 +303,16 @@ mod test {
         assert_eq!(x, 10);
         assert_eq!(y, 20);
 
-        let_extract!(Bar::C{x: a, y: b}, f, panic!());
+        // bigger structs will be split so by rustfmt, which will add the trailing comma
+        // test if it works
+        let_extract!(
+            Bar::C{
+                x: a, 
+                y: b,
+            }, 
+            f, 
+            panic!()
+        );
         assert_eq!(a, 10);
         assert_eq!(b, 20);
 
