@@ -173,6 +173,23 @@ macro_rules! extract {
 /// # }
 /// ```
 ///
+/// The last parameter can be omitted. If so, a match error will cause a panic
+///
+/// ```rust
+/// # #[macro_use] extern crate enum_extract;
+/// # enum Foo {
+/// #     A(i32),
+/// #     B(i32, i32),
+/// #     C { x: i32, y: i32 },
+/// #     D { z: i32 },
+/// # }
+/// # fn main() {
+/// let a = Foo::A(10);
+/// let_extract!(Foo::A(x), a);
+/// assert_eq!(x, 10);
+/// # }
+/// ```
+///
 /// Alternatively, it can provide default values for the variable bindings, from
 /// left to right.
 ///
@@ -259,6 +276,14 @@ macro_rules! let_extract {
     };
     ($($p:ident)::+ { $($its:tt)* } , $t:expr, $els:expr) => {
         let_extract!($($p)::+ { $($its)* } , $t, match { _ => $els })
+    };
+
+    // panic! if no else action supplied
+    ($($p:ident)::+ ( $($its:tt)* ) , $t:expr) => {
+        let_extract!($($p)::+ ( $($its)* ) , $t, match { _ => panic!("Unexpected variant in let_extract") })
+    };
+    ($($p:ident)::+ { $($its:tt)* } , $t:expr, $els:expr) => {
+        let_extract!($($p)::+ { $($its)* } , $t, match { _ => panic!("Unexpected variant in let_extract") })
     };
 
 }
