@@ -1,6 +1,6 @@
 [package]
 name = "enum_extract"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Michael Layzell <michael@thelayzells.com>"]
 description = "Helper macros for extracting single enum variants of an enum"
 documentation = "https://docs.rs/enum_extract"
